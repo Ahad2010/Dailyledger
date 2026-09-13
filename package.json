@@ -1,0 +1,19 @@
+{
+  "name": "life-planner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Development-only QA commands for the static Life Planner product.",
+  "scripts": {
+    "test": "node tests/smoke-test.js",
+    "test:dom": "node tests/dom-smoke-test.js",
+    "test:finance": "node tests/finance-flow-test.js",
+    "test:habits": "node tests/habit-streak-test.js",
+    "test:features": "node tests/planner-features-test.js",
+    "test:fixes": "node tests/qa-fixes-test.js",
+    "test:spa": "node tests/spa-routing-test.js",
+    "test:all": "npm run test && npm run test:dom && npm run test:finance && npm run test:habits && npm run test:features && npm run test:fixes && npm run test:spa"
+  },
+  "devDependencies": {
+    "jsdom": "24.1.3"
+  }
+}
