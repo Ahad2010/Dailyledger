@@ -6,4 +6,14 @@ const dom=openApp('my-routines/habit-tracker.html',{lp_habits:[habit]}),doc=dom.
 const values=[...doc.querySelectorAll('.stat-value')].map(x=>x.textContent.trim());
 if(!values.includes('3 days'))throw new Error('Three consecutive daily check-ins should produce a 3-day streak');
 if(!doc.querySelector('.streak-row')?.textContent.includes('3 current'))throw new Error('Habit streak panel did not render the current streak');
-dom.window.close();console.log('Habit streak test passed: current and best streaks are calculated from consecutive check-ins.');
+if(doc.body.textContent.includes('Invalid Date')||doc.body.textContent.includes('Last 28 days')||!doc.querySelector('.habit-calendar'))throw new Error('Habit tracker must use an unlimited navigable calendar with valid dates');
+dom.window.close();
+
+const fresh=openApp('my-routines/habit-tracker.html',{lp_settings:{theme:'light'}}),freshDoc=fresh.window.document,form=freshDoc.querySelector('#habit-bulk-form');
+if(freshDoc.documentElement.dataset.theme!=='dark'||freshDoc.querySelector('#theme-btn'))throw new Error('App must be dark-only with no theme switch');
+if(freshDoc.querySelectorAll('.start-choice').length!==7)throw new Error('Opening workspace chooser is missing sections');
+if(form.elements.names.tagName!=='INPUT')throw new Error('Habit entry must accept one habit at a time');form.elements.names.value='Drink water';form.dispatchEvent(new fresh.window.Event('submit',{bubbles:true,cancelable:true}));
+let saved=JSON.parse(fresh.window.localStorage.getItem('lp_habits'));if(saved.length!==1||saved[0].name!=='Drink water')throw new Error('Single habit entry did not save exactly one habit');
+const todayBox=freshDoc.querySelector('.habit-toggle');todayBox.checked=true;todayBox.dispatchEvent(new fresh.window.Event('change',{bubbles:true}));saved=JSON.parse(fresh.window.localStorage.getItem('lp_habits'));
+if(!saved.some(x=>x.checks[iso(new Date())]))throw new Error('Daily habit checklist did not save the selected date');
+fresh.window.close();console.log('Habit tracker test passed: streaks, dark-only UI, opening chooser, single add, and dated check-ins.');

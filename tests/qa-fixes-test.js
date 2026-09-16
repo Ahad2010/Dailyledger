@@ -40,12 +40,12 @@ const open=(file,seed={},query='')=>openApp(file,{lp_settings:{currency:'USD'},.
 
 // M4: a negative balance is flagged in both balance displays.
 {
-  const settings={currency:'USD',financeSessions:[{id:'s',name:'Negative',openingBalance:100,startDate:today}],activeFinanceSession:'s'},dom=open('financial-planner/log.html',{lp_settings:settings,lp_finance_log:[{id:'e',sessionId:'s',type:'Expense',status:'Cleared',category:'Test',amount:'200',date:today}]});const d=dom.window.document;assert(d.querySelector('.stat.danger'),'M4 summary danger state missing');assert(d.querySelector('.balance-equation strong.balance-negative'),'M4 equation danger state missing');dom.window.close();
+  const settings={currency:'USD',financeSessions:[{id:'s',name:'Negative',openingBalance:100,startDate:today}],activeFinanceSession:'s'},dom=open('financial-planner/log.html',{lp_settings:settings,lp_finance_log:[{id:'e',sessionId:'s',type:'Expense',status:'Cleared',category:'Test',amount:'200',date:today}]});const d=dom.window.document;assert(d.querySelector('.stat.danger'),'M4 summary danger state missing');assert(d.querySelector('.finance-equation strong.balance-negative'),'M4 equation danger state missing');dom.window.close();
 }
 
 // M5: only checked habit dates appear on the full calendar.
 {
-  const dom=open('life-planner/smart-calendar.html',{lp_habits:[{id:'h',name:'Read',frequency:'Daily',checks:{[today]:true}}]});const events=dom.window.document.querySelectorAll('.calendar-event.type-habit');assert(events.length===1&&events[0].textContent.includes('✓ Read'),'M5 checked habit marker missing or repeated');dom.window.close();
+  let dom=open('life-planner/smart-calendar.html',{lp_habits:[{id:'h',name:'Read',frequency:'Daily',checks:{[today]:true}}]});const events=dom.window.document.querySelectorAll('.calendar-event.type-habit');assert(events.length===1&&events[0].textContent.includes('✓ Read'),'M5 checked habit marker missing or repeated');dom.window.close();dom=open('index.html',{lp_habits:[{id:'h',name:'Read',frequency:'Daily',checks:{}}]});assert(![...dom.window.document.querySelectorAll('.dashboard-calendar .calendar-item')].some(x=>x.textContent.includes('Habit · Read')),'M5 dashboard calendar showed an unchecked future habit');dom.window.close();
 }
 
 // M6: overlap is rejected, exact back-to-back is accepted.

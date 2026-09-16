@@ -5,12 +5,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Life Planner — a private, local-first life management dashboard.">
   <title>Life Planner</title>
+  <script>document.documentElement.dataset.theme='dark'</script>
+  <style>
+    html{--sk-bg:#0b0d0b;--sk-side:#080a08;--sk-card:#111510;--sk-line:rgba(203,209,190,.1);--sk-shine:rgba(255,255,255,.045)}
+    body{margin:0}.app-skeleton{min-height:100vh;display:grid;grid-template-columns:240px 1fr;background:var(--sk-bg)}.sk-sidebar{padding:30px 24px;background:var(--sk-side);border-right:1px solid var(--sk-line)}.sk-main{padding:34px 40px}.sk-line,.sk-card{position:relative;overflow:hidden;background:var(--sk-card);border:1px solid var(--sk-line)}.sk-line{height:13px;margin-bottom:18px;border:0;border-radius:8px}.sk-line:after,.sk-card:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--sk-shine),transparent);animation:sk-load 1.25s infinite}.sk-brand{width:126px;height:24px;margin-bottom:50px}.sk-nav{width:82%;height:12px;margin-bottom:25px}.sk-head{width:42%;height:28px;margin-bottom:30px}.sk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.sk-card{height:112px;border-radius:10px}.sk-panels{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:22px}.sk-panels .sk-card{height:330px}@keyframes sk-load{to{transform:translateX(100%)}}@media(max-width:720px){.app-skeleton{display:block}.sk-sidebar{display:none}.sk-main{padding:24px 16px}.sk-head{width:70%}.sk-stats,.sk-panels{grid-template-columns:1fr 1fr}.sk-panels{grid-template-columns:1fr}.sk-panels .sk-card{height:260px}}@media(prefers-reduced-motion:reduce){.sk-line:after,.sk-card:after{animation:none}}
+  </style>
   <link rel="stylesheet" href="assets/css/tokens.css">
   <script defer src="assets/vendor/chart.umd.min.js"></script>
   <script defer src="assets/js/storage.js"></script>
   <script defer src="assets/js/app.js"></script>
 </head>
 <body data-page="home" data-depth="0">
+  <div class="app-skeleton" role="status" aria-label="Loading Life Planner">
+    <aside class="sk-sidebar"><div class="sk-line sk-brand"></div><div class="sk-line sk-nav"></div><div class="sk-line sk-nav"></div><div class="sk-line sk-nav"></div><div class="sk-line sk-nav"></div><div class="sk-line sk-nav"></div></aside>
+    <main class="sk-main"><div class="sk-line sk-head"></div><div class="sk-stats"><div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div></div><div class="sk-panels"><div class="sk-card"></div><div class="sk-card"></div></div></main>
+  </div>
   <noscript>Life Planner needs JavaScript enabled to save and manage your local data.</noscript>
 </body>
 </html>

@@ -17,8 +17,9 @@ dom=open('financial-planner/log.html',{lp_settings:{currency:'USD',theme:'dark',
 let posted=JSON.parse(dom.window.localStorage.getItem('lp_finance_log'));
 assert(posted.length===2,'Due monthly income and expense rules were not posted');
 assert(amount(doc.querySelector('.stat-value').textContent)===7000,'Recurring monthly cashflow did not update available balance');
+dom.window.location.hash='#/financial-planner/money-setup';dom.window.dispatchEvent(new dom.window.HashChangeEvent('hashchange'));
 assert(doc.querySelectorAll('#cashflow-template-form input,#cashflow-template-form select').length===4,'Monthly cashflow setup should contain only four essential controls');
-dom.window.location.hash='#rerender';doc.querySelector('#session-select').dispatchEvent(new dom.window.Event('change',{bubbles:true}));posted=JSON.parse(dom.window.localStorage.getItem('lp_finance_log'));
+doc.querySelector('#session-select').dispatchEvent(new dom.window.Event('change',{bubbles:true}));posted=JSON.parse(dom.window.localStorage.getItem('lp_finance_log'));
 assert(posted.length===2,'Recurring monthly cashflow created duplicate entries');dom.window.close();
 
 const oldDaily={id:'daily-old',title:'Daily review',frequency:'Daily',interval:'1',start:'2020-01-01',end:''};
