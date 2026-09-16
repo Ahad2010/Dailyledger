@@ -20,7 +20,7 @@ Life Planner is a private, dark-theme life-management web app that works offline
 
 1. **Main Dashboard**
    - Daily task, habit, meal, and workout summary.
-   - Six-month cash-flow chart.
+   - Six-month income-versus-expense line chart calculated from saved transactions.
    - Monthly spending-category donut chart.
    - Today's cross-module schedule and open tasks.
    - Habit and budget progress.
@@ -44,6 +44,9 @@ Life Planner is a private, dark-theme life-management web app that works offline
    - Optional account and note fields remain collapsed until needed.
    - Savings and debt entries can link to their matching tracker.
    - Editable transaction history and pending-bill area.
+   - Real-data six-month income-versus-outflow line chart with exact currency tooltips.
+   - Transaction-value mix chart across income, expenses, bills, savings, and debt payments.
+   - Consistent finance colors: green for positive money, red for outflow/loss, and gold for savings.
 
 4. **Money Setup**
    - Separate finance sessions with independent opening balances and history.
@@ -67,8 +70,9 @@ Life Planner is a private, dark-theme life-management web app that works offline
 
 7. **Annual Dashboard**
    - Current-year income, expenses, net result, and pending-bill totals.
-   - Monthly income-versus-expense chart.
+   - Monthly income-versus-expense line trend with exact currency tooltips.
    - Year-to-date savings-rate summary.
+   - Positive and negative result cards change color automatically from the calculated net.
 
 8. **Finance Calculator**
    - Loan/EMI payment and interest calculator.
@@ -77,6 +81,7 @@ Life Planner is a private, dark-theme life-management web app that works offline
    - Percentage, discount, tax, tip, and markup calculator.
    - Debt payoff duration and interest calculator.
    - Business revenue, costs, profit, margin, and break-even calculator.
+   - Business profit and margin turn green for profit and red for loss.
 
 ## Task Tracker
 

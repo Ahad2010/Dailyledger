@@ -7,9 +7,11 @@ const project=path.resolve(__dirname,'..'),index=path.join(project,'index.html')
 const html=fs.readFileSync(index,'utf8'),app=fs.readFileSync(path.join(project,'assets/js/app.js'),'utf8');
 for(const match of html.matchAll(/(?:src|href)="([^"]+)"/g))assert(fs.existsSync(path.resolve(project,match[1])),`Broken SPA asset: ${match[1]}`);
 assert((app.match(/'\/[a-z][^']*':'[a-z]/g)||[]).length===23,'SPA route registry must contain 23 product views');
+assert(app.includes('assets/images/daily-ledger-logo.png'),'Sidebar logo asset is missing');
 
 const css=fs.readFileSync(path.join(project,'assets/css/tokens.css'),'utf8');
 ['#0B0D0B','#94A27A','#B89058','#96998D','max-width:1000px','max-width:720px','max-width:420px'].forEach(token=>assert(css.includes(token),`Missing design token/breakpoint: ${token}`));
+assert(app.includes("interaction:type==='line'?{mode:'index',intersect:false,axis:'x'}:undefined"),'Line charts must show the nearest tooltip without requiring an exact point hover');
 
 const requiredKeys=['lp_settings','lp_finance_log','lp_finance_budgets','lp_finance_savings_debt','lp_tasks_variable','lp_tasks_recurring_rules','lp_tasks_recurring_instances','lp_habits','lp_cleaning','lp_workouts_setup','lp_workouts_plan','lp_weight_log','lp_meals_setup','lp_meals_plan','lp_grocery_list','lp_goals','lp_timeblocks'];
 const values=new Map(),localStorage={getItem:key=>values.has(key)?values.get(key):null,setItem:(key,value)=>values.set(key,String(value))};

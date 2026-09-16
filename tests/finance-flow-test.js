@@ -12,11 +12,16 @@ function add(type,amount,status='Cleared'){
 }
 
 assert(balance()===50000,'Opening balance should be 50,000');
+assert(d.querySelector('.finance-charts'),'Finance analytics section should render');
+assert(d.querySelector('#finance-trend'),'Six-month finance trend should render');
+assert(d.querySelectorAll('.stats .money-positive').length===2,'Balance and income cards should use positive styling');
 add('Expense',10000);assert(balance()===40000,'Expense should reduce balance to 40,000');
 add('Bill',5000,'Pending');assert(balance()===40000,'Pending bill must not reduce balance');
 const bill=d.querySelector('.bill-toggle');bill.checked=true;bill.dispatchEvent(new w.Event('change',{bubbles:true}));assert(balance()===35000,'Paid bill should reduce balance to 35,000');
 add('Savings',5000);assert(balance()===30000,'Savings transfer should reduce available balance to 30,000');
 add('Income',2000);assert(balance()===32000,'Income should increase balance to 32,000');
+assert(d.querySelector('.item-value.money-positive-text'),'Income history should use positive styling');
+assert(d.querySelector('.item-value.money-negative-text'),'Outflow history should use negative styling');
 
 w.location.hash='#/financial-planner/money-setup';w.dispatchEvent(new w.HashChangeEvent('hashchange'));const session=d.querySelector('#session-form');session.elements.name.value='New month';session.elements.opening.value='100000';session.elements.start.value='2026-10-01';session.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));w.location.hash='#/financial-planner/log';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
 assert(balance()===100000,'New session should start with its own opening balance');

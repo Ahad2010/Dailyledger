@@ -9,7 +9,11 @@ assert(amount(doc.querySelector('#goal-needed').textContent)===3750,'Savings-goa
 assert(amount(doc.querySelector('#pct-result').textContent)===11500,'Percentage-add calculation is inaccurate');
 assert(doc.querySelector('#debt-months').textContent==='24 months','Debt payoff duration is inaccurate');
 assert(amount(doc.querySelector('#biz-profit').textContent)===8000,'Business profit calculation is inaccurate');
-assert(doc.querySelector('#biz-margin').textContent==='40.00%','Business margin calculation is inaccurate');dom.window.close();
+assert(doc.querySelector('#biz-margin').textContent==='40.00%','Business margin calculation is inaccurate');
+assert(doc.querySelector('#biz-profit').classList.contains('money-positive-text'),'Profit should use positive styling');
+doc.querySelector('#biz-revenue').value='5000';doc.querySelector('#biz-revenue').dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(amount(doc.querySelector('#biz-profit').textContent)===-7000,'Business loss calculation is inaccurate');
+assert(doc.querySelector('#biz-profit').classList.contains('money-negative-text'),'Loss should use negative styling');dom.window.close();
 
 const now=new Date(),todayIso=localIso(now),financeSession={id:'qa-session',name:'QA',openingBalance:0,startDate:todayIso};
 const financeTemplates=[{id:'business-a',name:'Business A',type:'Income',amount:10000,day:now.getDate(),startDate:todayIso,active:true},{id:'rent',name:'Rent',type:'Expense',amount:3000,day:now.getDate(),startDate:todayIso,active:true}];
