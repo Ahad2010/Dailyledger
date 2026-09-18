@@ -128,6 +128,9 @@ Life Planner is a private, dark-theme life-management web app that works offline
 15. **Workout Setup**
     - Reusable exercise library.
     - Equipment plus default sets and reps.
+    - Live full-body anatomy preview while typing an exercise name.
+    - Automatic primary-muscle detection for common exercises, with a full-body fallback for custom names.
+    - Saved exercise history shows the detected body part and remains editable.
 
 16. **Workout Planner**
     - Date-based workout scheduling.

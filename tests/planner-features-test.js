@@ -15,6 +15,26 @@ doc.querySelector('#biz-revenue').value='5000';doc.querySelector('#biz-revenue')
 assert(amount(doc.querySelector('#biz-profit').textContent)===-7000,'Business loss calculation is inaccurate');
 assert(doc.querySelector('#biz-profit').classList.contains('money-negative-text'),'Loss should use negative styling');dom.window.close();
 
+dom=open('fitness-planner/workout-setup.html',{});doc=dom.window.document;
+const exerciseName=doc.querySelector('#name');exerciseName.value='Bench Press';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="chest"]').classList.contains('active'),'Bench press should highlight the chest');
+assert(doc.querySelector('#anatomy-target').textContent==='Chest','Detected muscle label is incorrect');
+exerciseName.value='Dumbbell Incline Bench Press';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="chest"]').classList.contains('active'),'First two meaningful words should detect incline bench as chest');
+exerciseName.value='Custom movement';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelectorAll('.anatomy-part[data-muscle].active').length===0,'Unknown exercise should keep the skeleton neutral');
+exerciseName.value='Legs';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="legs"]').classList.contains('active'),'General legs input should highlight the legs');
+exerciseName.value='Arms';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="arms"]').classList.contains('active')&&!doc.querySelector('.anatomy-part[data-muscle="hands"]').classList.contains('active'),'Arms must not cover hands and fingers');
+exerciseName.value='Hands';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="hands"]').classList.contains('active'),'Hands and fingers need their own focus region');
+exerciseName.value='Feet';exerciseName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));
+assert(doc.querySelector('.anatomy-part[data-muscle="feet"]').classList.contains('active'),'Feet need their own focus region');
+exerciseName.value='Back Squat';doc.querySelector('#equipment').value='Barbell';doc.querySelector('#sets').value='4';doc.querySelector('#reps').value='8';doc.querySelector('#entry-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+assert(doc.querySelector('.exercise-history'),'Exercise library should render below as history');
+assert(doc.querySelector('.exercise-history .item-sub').textContent.includes('Quads & legs'),'Saved squat should show its detected body part');dom.window.close();
+
 const now=new Date(),todayIso=localIso(now),financeSession={id:'qa-session',name:'QA',openingBalance:0,startDate:todayIso};
 const financeTemplates=[{id:'business-a',name:'Business A',type:'Income',amount:10000,day:now.getDate(),startDate:todayIso,active:true},{id:'rent',name:'Rent',type:'Expense',amount:3000,day:now.getDate(),startDate:todayIso,active:true}];
 dom=open('financial-planner/log.html',{lp_settings:{currency:'USD',theme:'dark',financeSessions:[financeSession],activeFinanceSession:'qa-session',financeTemplates},lp_finance_log:[]});doc=dom.window.document;

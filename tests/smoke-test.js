@@ -8,6 +8,7 @@ const html=fs.readFileSync(index,'utf8'),app=fs.readFileSync(path.join(project,'
 for(const match of html.matchAll(/(?:src|href)="([^"]+)"/g))assert(fs.existsSync(path.resolve(project,match[1])),`Broken SPA asset: ${match[1]}`);
 assert((app.match(/'\/[a-z][^']*':'[a-z]/g)||[]).length===23,'SPA route registry must contain 23 product views');
 assert(app.includes('assets/images/daily-ledger-logo.png'),'Sidebar logo asset is missing');
+assert(app.includes('assets/images/workout-anatomy.png'),'Supplied workout anatomy image is missing');
 
 const css=fs.readFileSync(path.join(project,'assets/css/tokens.css'),'utf8');
 ['#0B0D0B','#94A27A','#B89058','#96998D','max-width:1000px','max-width:720px','max-width:420px'].forEach(token=>assert(css.includes(token),`Missing design token/breakpoint: ${token}`));
