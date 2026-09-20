@@ -1,30 +1,52 @@
 const {openApp}=require('./open-app');
 const assert=require('node:assert/strict');
 
-const dom=openApp('financial-planner/log.html',{lp_settings:{currency:'USD',theme:'dark',financeSessions:[{id:'qa',name:'QA balance',openingBalance:50000,startDate:'2026-01-01'}],activeFinanceSession:'qa'}}),w=dom.window,d=w.document;
+const dom=openApp('financial-planner/money-setup.html',{lp_settings:{currency:'USD',theme:'dark'}}),w=dom.window,d=w.document;
+const submit=(form,values)=>{Object.entries(values).forEach(([key,value])=>form.elements[key].value=value);form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}))};
+const month=new Date().toISOString().slice(0,7);
 
-function balance(){return Number(d.querySelector('.stat-value').textContent.replace(/[^0-9.-]/g,''))}
-function add(type,amount,status='Cleared'){
-  const form=d.querySelector('#entry-form');
-  const values={type,date:'2026-09-12',amount:String(amount),category:type+' QA',account:'Cash',status,note:'Automated test'};
-  Object.entries(values).forEach(([name,value])=>{form.elements[name].value=value});
-  form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
-}
+assert.equal(d.querySelectorAll('.tabs a').length,4,'Finance navigation must be Overview, Transactions, Plan, Calculator');
+submit(d.querySelector('#source-form'),{name:'Client work',amount:1000,dayOfMonth:5});
+let data=JSON.parse(w.localStorage.getItem('dl_finance'));
+assert.equal(data.incomeSources[0].name,'Client work');
 
-assert(balance()===50000,'Opening balance should be 50,000');
-assert(d.querySelector('.finance-charts'),'Finance analytics section should render');
-assert(d.querySelector('#finance-trend'),'Six-month finance trend should render');
-assert(d.querySelectorAll('.stats .money-positive').length===2,'Balance and income cards should use positive styling');
-add('Expense',10000);assert(balance()===40000,'Expense should reduce balance to 40,000');
-add('Bill',5000,'Pending');assert(balance()===40000,'Pending bill must not reduce balance');
-const bill=d.querySelector('.bill-toggle');bill.checked=true;bill.dispatchEvent(new w.Event('change',{bubbles:true}));assert(balance()===35000,'Paid bill should reduce balance to 35,000');
-add('Savings',5000);assert(balance()===30000,'Savings transfer should reduce available balance to 30,000');
-add('Income',2000);assert(balance()===32000,'Income should increase balance to 32,000');
-assert(d.querySelector('.item-value.money-positive-text'),'Income history should use positive styling');
-assert(d.querySelector('.item-value.money-negative-text'),'Outflow history should use negative styling');
+w.location.hash='#/financial-planner/log';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+assert(d.querySelector('.source-receive'),'Expected income must appear in Transactions');
+d.querySelector('.source-receive').click();
+data=JSON.parse(w.localStorage.getItem('dl_finance'));
+assert.equal(data.transactions.filter(x=>x.type==='income').length,1,'Mark received must create an income transaction');
 
-w.location.hash='#/financial-planner/money-setup';w.dispatchEvent(new w.HashChangeEvent('hashchange'));const session=d.querySelector('#session-form');session.elements.name.value='New month';session.elements.opening.value='100000';session.elements.start.value='2026-10-01';session.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));w.location.hash='#/financial-planner/log';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
-assert(balance()===100000,'New session should start with its own opening balance');
-assert(JSON.parse(w.localStorage.getItem('lp_finance_log')).length===4,'Starting a new session must preserve old entries');
+d.querySelector('[data-finance-kind="expense"]').click();
+const expenseCategory=d.querySelector('#transaction-category option:not([value="__add"])').value;
+submit(d.querySelector('#finance-transaction-form'),{amount:400,date:`${month}-10`,categoryId:expenseCategory,note:'Groceries'});
+data=JSON.parse(w.localStorage.getItem('dl_finance'));
+assert.equal(JSON.stringify(w.DLFinance.getMonthSummary(data,month)),JSON.stringify({expected:1000,income:1000,spent:400,net:600,leftToSpend:600,savingsRate:60}));
+d.querySelector('.transaction-edit').click();d.querySelector('#edit-transaction-note').value='Edited groceries';d.querySelector('#edit-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+data=JSON.parse(w.localStorage.getItem('dl_finance'));assert(data.transactions.some(x=>x.note==='Edited groceries'),'Transaction edit did not persist');
+d.querySelector('.transaction-delete').click();data=JSON.parse(w.localStorage.getItem('dl_finance'));assert.equal(w.DLFinance.getMonthSummary(data,month).spent,0,'Deleting a transaction did not update totals');d.querySelector('.toast .mini-btn').click();data=JSON.parse(w.localStorage.getItem('dl_finance'));assert.equal(w.DLFinance.getMonthSummary(data,month).spent,400,'Transaction undo did not restore totals');
+const previous=new Date(`${month}-01T00:00:00`);previous.setMonth(previous.getMonth()-1);const previousMonth=`${previous.getFullYear()}-${String(previous.getMonth()+1).padStart(2,'0')}`;
+const incomeCategory=data.categories.find(x=>x.type==='income').id;data.transactions.push({id:'previous-income',type:'income',amount:800,date:`${previousMonth}-05`,categoryId:incomeCategory},{id:'previous-expense',type:'expense',amount:200,date:`${previousMonth}-10`,categoryId:expenseCategory});w.DLFinance.saveData(data);
+
+w.location.hash='#/financial-planner/money-setup';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+d.querySelector('[data-plan-tab="budgets"]').click();
+submit(d.querySelector('#budget-form'),{categoryId:expenseCategory,limit:300});
+d.querySelector('[data-plan-tab="bills"]').click();
+submit(d.querySelector('#bill-form'),{name:'Internet',amount:100,dueDay:12,categoryId:expenseCategory});
+
+w.location.hash='#/financial-planner/annual-dashboard';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+assert(d.body.textContent.includes('Left to spend')&&d.body.textContent.includes('Internet'),'Overview must show hero and pending bill');
+d.querySelector('.bill-pay').click();
+data=JSON.parse(w.localStorage.getItem('dl_finance'));
+assert.equal(w.DLFinance.getMonthSummary(data,month).spent,500,'Paid bill must update month spending');
+assert.equal(w.DLFinance.getBillsStatus(data,month).find(x=>x.name==='Internet').status,'Paid');
+d.querySelector('.toast .mini-btn').click();
+data=JSON.parse(w.localStorage.getItem('dl_finance'));
+assert.notEqual(w.DLFinance.getBillsStatus(data,month).find(x=>x.name==='Internet').status,'Paid','Undo must restore pending bill');
+assert.equal(w.DLFinance.getMonthReview(data,month).budgetsExceeded,1,'Month review must derive exceeded budgets');
+assert.equal(w.DLFinance.getMonthReview(data,month).incomeChangePct,25,'Income change vs previous month is wrong');
+assert.equal(w.DLFinance.getMonthReview(data,month).spendChangePct,100,'Spend change vs previous month is wrong');
+
+data.transactions.push({id:'old',type:'expense',amount:999,date:'2025-01-01',categoryId:expenseCategory});w.DLFinance.saveData(data);
+assert.equal(w.DLFinance.getMonthSummary(data,month).spent,400,'Another month must not affect selected month');
 dom.window.close();
-console.log('Finance flow test passed: opening balance, expense, pending/paid bill, savings, income, and new-session history.');
+console.log('Finance flow test passed: connected store, received income, expense, budget, bill/undo, review, and month isolation.');

@@ -1,9 +1,9 @@
 const {openApp}=require('./open-app');
 const pages=[
   'index.html','financial-planner/log.html','financial-planner/money-setup.html','financial-planner/budget-tracker.html','financial-planner/savings-debt.html','financial-planner/annual-dashboard.html','financial-planner/calculator.html',
-  'task-tracker/variable-tasks.html','task-tracker/recurring-rules.html','task-tracker/recurring-tasks.html','task-tracker/dashboard.html',
-  'my-routines/habit-tracker.html','my-routines/cleaning-schedule.html','fitness-planner/workout-setup.html','fitness-planner/workout-planner.html','fitness-planner/weight-tracker.html',
-  'meals-grocery/meal-setup.html','meals-grocery/meal-planner.html','meals-grocery/grocery-list.html','life-planner/goal-tracker.html','life-planner/weekly-time-block.html','life-planner/smart-calendar.html'
+  'task-tracker/variable-tasks.html','task-tracker/recurring-rules.html','task-tracker/recurring-tasks.html',
+  'my-routines/habit-tracker.html','my-routines/daily-journal.html','fitness-planner/workout-setup.html','fitness-planner/workout-planner.html','fitness-planner/weight-tracker.html',
+  'meals-grocery/meal-setup.html','meals-grocery/meal-planner.html','meals-grocery/grocery-list.html','meals-grocery/pantry.html','life-planner/goal-tracker.html','life-planner/weekly-time-block.html','life-planner/smart-calendar.html'
 ];
 
 for(const file of pages){

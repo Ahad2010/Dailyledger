@@ -5,8 +5,9 @@ const habit={id:'habit-qa',name:'Read',frequency:'Daily',checks:{[iso(d0)]:true,
 const dom=openApp('my-routines/habit-tracker.html',{lp_habits:[habit]}),doc=dom.window.document;
 const values=[...doc.querySelectorAll('.stat-value')].map(x=>x.textContent.trim());
 if(!values.includes('3 days'))throw new Error('Three consecutive daily check-ins should produce a 3-day streak');
-if(!doc.querySelector('.streak-row')?.textContent.includes('3 current'))throw new Error('Habit streak panel did not render the current streak');
-if(doc.body.textContent.includes('Invalid Date')||doc.body.textContent.includes('Last 28 days')||!doc.querySelector('.habit-calendar'))throw new Error('Habit tracker must use an unlimited navigable calendar with valid dates');
+if(!doc.querySelector('.hb-streak')?.textContent.includes('3 current'))throw new Error('Habit card did not render the current streak');
+if(doc.body.textContent.includes('Invalid Date')||doc.querySelector('.habit-calendar'))throw new Error('Habit tracker should not render the old monthly calendar');
+if(doc.querySelectorAll('.hb-day').length!==7||doc.querySelectorAll('.habit-toggle').length!==1||!doc.querySelector('.hb-day.is-future'))throw new Error('Habit tracker must show a 7-day week with only today checkable and later days locked');
 dom.window.close();
 
 const fresh=openApp('my-routines/habit-tracker.html',{lp_settings:{theme:'light'}}),freshDoc=fresh.window.document,form=freshDoc.querySelector('#habit-bulk-form');
