@@ -36,9 +36,10 @@ doc.querySelector('#wl-name').value='Back Squat';doc.querySelector('#wl-name').d
 assert(doc.querySelector('#wl-hint').textContent.includes('80'),'Choosing a logged exercise must show what you lifted last time');dom.window.close();
 // routines: a template fills the week, and today’s routine becomes a tick-off list
 dom=open('fitness-planner/workout-planner.html',{});doc=dom.window.document;
-doc.querySelector('.rt-template[data-id="fb"]').click();doc=dom.window.document;
+const rform=doc.querySelector('#routine-form');rform.elements.name.value='Leg day';rform.querySelectorAll('input[name="days"]').forEach(c=>{c.checked=c.value==='Friday'});rform.elements.exercises.value='Squat 3x8\nLeg press 3x10\nCalf raise';rform.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));doc=dom.window.document;
 const savedRoutines=JSON.parse(dom.window.localStorage.getItem('lp_routines'));
-assert(savedRoutines.length===1&&savedRoutines[0].exercises.length===5&&savedRoutines[0].exercises[0].sets==='3','A routine template must save its exercises with sets and reps');dom.window.close();
+assert(savedRoutines.length===1&&savedRoutines[0].exercises.length===3&&savedRoutines[0].exercises[0].sets==='3'&&savedRoutines[0].exercises[2].sets==='','A routine must save its exercises with sets and reps');
+assert(!doc.querySelector('.rt-templates'),'Routine templates were removed');dom.window.close();
 const todayName=new Date().toLocaleDateString('en-US',{weekday:'long'});
 dom=open('fitness-planner/workout-setup.html',{lp_routines:[{id:'r1',name:'Push day',days:[todayName],exercises:[{name:'Bench press',sets:'3',reps:'8'},{name:'Overhead press',sets:'3',reps:'8'}]}]});doc=dom.window.document;
 const tick=doc.querySelector('.ft-tick');tick.checked=true;tick.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
@@ -68,24 +69,49 @@ const savedMeal={id:'meal-1',name:'Chicken bowl',slot:'Dinner',tags:'',ingredien
 dom=open('meals-grocery/meal-planner.html',{lp_meals_setup:[savedMeal],lp_meals_plan:[],lp_grocery_list:[]});doc=dom.window.document;
 assert(doc.querySelectorAll('.ml-day').length===7,'Meal plan must show seven days');
 doc.querySelector('.ml-add').click();const mealName=doc.querySelector('#meal-dlg-name');mealName.value='Chicken bowl';mealName.dispatchEvent(new dom.window.Event('input',{bubbles:true}));doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
-assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_plan')).length===1,'Meal was not added to the weekly plan');
+const weeklyPlan=JSON.parse(dom.window.localStorage.getItem('lp_meals_plan'));
+assert(weeklyPlan.length===7&&weeklyPlan.every(x=>x.day&&!x.date),'A meal added to one day must repeat on every day by default and store weekdays, not dates');
+doc=dom.window.document;assert([...doc.querySelectorAll('.ml-day')].every(d=>d.querySelectorAll('.ml-slot').length===4&&d.querySelectorAll('.ml-add').length===3),'Each day must show four slots and only empty slots offer + Add');doc.querySelector('.row-delete').click();
+assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_plan')).length===6,'Removing one day must leave the other days untouched');
 assert(JSON.parse(dom.window.localStorage.getItem('lp_grocery_list')).length===3,'Planned meal ingredients did not build the shopping list');
-doc.querySelector('.ml-add').click();const newMeal=doc.querySelector('#meal-dlg-name');newMeal.value='Egg toast';newMeal.dispatchEvent(new dom.window.Event('input',{bubbles:true}));doc.querySelector('#meal-dlg-ing').value='2 eggs, 1 bread';doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+doc.querySelector('.ml-add[data-slot="Lunch"]').click();const newMeal=doc.querySelector('#meal-dlg-name');newMeal.value='Egg toast';newMeal.dispatchEvent(new dom.window.Event('input',{bubbles:true}));doc.querySelector('#meal-dlg-ing').value='2 eggs, 1 bread';doc.querySelectorAll('#edit-fields input[name="days"]').forEach(c=>{c.checked=c.value==='Monday'});doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
 assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_setup')).some(x=>x.name==='Egg toast'&&x.ingredients.includes('2 eggs')),'A new meal typed while planning must be saved to the library');
+assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_plan')).filter(x=>x.meal==='Egg toast').length===1,'Choosing only Monday must add the meal to Monday only');
 assert(JSON.parse(dom.window.localStorage.getItem('lp_grocery_list')).length===5,'Ingredients typed while planning must reach the shopping list');dom.window.close();
 
 dom=open('meals-grocery/meal-planner.html',{lp_meals_setup:[savedMeal],lp_meals_plan:[{id:'pp',date:todayIso,slot:'Dinner',meal:'Chicken bowl'}],lp_pantry:[{id:'pn',name:'Rice'}],lp_grocery_list:[]});
-assert(JSON.parse(dom.window.localStorage.getItem('lp_grocery_list')).map(x=>x.name).join(',')==='Chicken,Onion','Pantry items must be left off the shopping list');dom.window.close();
+assert(JSON.parse(dom.window.localStorage.getItem('lp_grocery_list')).map(x=>x.name).join(',')==='Chicken,Onion','Pantry items must be left off the shopping list');
+assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_plan')).every(x=>x.day&&!x.date),'Old dated meal plans must convert to weekdays');dom.window.close();
+const todayWeekday=new Date().toLocaleDateString('en-US',{weekday:'long'});
+dom=open('index.html',{lp_meals_setup:[savedMeal],lp_meals_plan:[{id:'dm',day:todayWeekday,slot:'Breakfast',meal:'Chicken bowl'}],lp_tasks_variable:[{id:'dt',title:'Send report',due:todayIso,priority:'High',status:'To do'}]});doc=dom.window.document;
+assert(doc.querySelector('.dt-row .dt-main small').textContent.length>0&&[...doc.querySelectorAll('.dt-main small')].some(x=>x.textContent.startsWith('Breakfast')),'Today must show the meal slot instead of the word Meal');
+const mealTick=doc.querySelector('.dash-check[data-kind="meal"]');mealTick.checked=true;mealTick.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+assert(JSON.parse(dom.window.localStorage.getItem('lp_meal_log'))[0].ate===true,'Ticking a meal on the dashboard must record that it was eaten');doc=dom.window.document;
+const taskTick=doc.querySelector('.dash-check[data-kind="task"]');taskTick.checked=true;taskTick.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+assert(JSON.parse(dom.window.localStorage.getItem('lp_tasks_variable'))[0].status==='Done','Ticking a task on the dashboard must complete it');doc=dom.window.document;
+doc.querySelector('.dash-meal-edit').click();doc.querySelector('#meal-eat-name').value='Omelette';doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+const eatenLog=JSON.parse(dom.window.localStorage.getItem('lp_meal_log'))[0];assert(eatenLog.actual==='Omelette'&&JSON.parse(dom.window.localStorage.getItem('lp_meals_plan'))[0].meal==='Chicken bowl','Eating something else must change today only, not the weekly plan');doc=dom.window.document;
+assert([...doc.querySelectorAll('.dt-main b')].some(x=>x.textContent==='Omelette'),'The dashboard must show what was actually eaten');
+doc.querySelector('.dash-meal-edit').click();doc.querySelector('#meal-eat-name').value='Omelette';doc.querySelector('#meal-eat-every').checked=true;doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_plan'))[0].meal==='Omelette','The every-week option must change the weekly plan too');dom.window.close();
+dom=open('life-planner/smart-calendar.html',{lp_meals_setup:[savedMeal],lp_meals_plan:[{id:'w',day:'Monday',slot:'Lunch',meal:'Chicken bowl'}]});
+assert(dom.window.document.querySelectorAll('.calendar-event.type-meal').length>=4,'A weekly meal must repeat on every matching weekday of the month');dom.window.close();
 dom=open('meals-grocery/meal-setup.html',{lp_meals_setup:[savedMeal]});doc=dom.window.document;doc.querySelector('.row-edit').click();doc.querySelector('#edit-name').value='Edited chicken bowl';doc.querySelector('#edit-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
 assert(JSON.parse(dom.window.localStorage.getItem('lp_meals_setup'))[0].name==='Edited chicken bowl','Shared edit popup did not update a saved meal');dom.window.close();
 
 const goal={id:'goal-1',name:'Launch product',category:'Business',targetDate:todayIso,progress:'0',milestones:'Finish design, Test checkout',milestoneChecks:{}};
-dom=open('life-planner/goal-tracker.html',{lp_goals:[goal]});doc=dom.window.document;
-assert(doc.querySelector('#goal-add-form')&&doc.querySelectorAll('.goal-milestone').length===2,'Goal page must show the add form and each goal step');
-const firstMilestone=doc.querySelector('.goal-milestone');firstMilestone.checked=true;firstMilestone.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
-assert(Number(JSON.parse(dom.window.localStorage.getItem('lp_goals'))[0].progress)===50,'Goal progress did not calculate from completed milestones');
-const stepInput=doc.querySelector('.goal-step-form input[name="step"]');stepInput.value='Launch ads';doc.querySelector('.goal-step-form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
-assert(JSON.parse(dom.window.localStorage.getItem('lp_goals'))[0].milestones.includes('Launch ads'),'A step added from the goal card was not saved');dom.window.close();
+dom=open('life-planner/goal-tracker.html',{lp_goals:[{...goal,milestones:'',progress:'0'}]});doc=dom.window.document;
+assert(doc.querySelector('#goal-add-form')&&!doc.querySelector('.goal-milestone')&&!doc.querySelector('.goal-step-form')&&!doc.querySelector('.goal-percent'),'Goal cards must offer percentages only: no steps and no slider');
+doc.querySelector('.gc-chip[data-value="50"]').click();
+assert(JSON.parse(dom.window.localStorage.getItem('lp_goals'))[0].progress==='50','The 50% button must save 50 percent');doc=dom.window.document;
+assert(doc.querySelector('.gc-chip.active').dataset.value==='50'&&doc.querySelector('.gc-pct').textContent==='50%','The chosen percentage must be highlighted');
+const custom=doc.querySelector('.goal-custom-form');custom.elements.pct.value='40';custom.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));doc=dom.window.document;
+assert(JSON.parse(dom.window.localStorage.getItem('lp_goals'))[0].progress==='40'&&doc.querySelector('.gc-pct').textContent==='40%'&&doc.querySelector('.gc-card .fx-track i').style.width==='40%','A custom 40 percent must show 40 percent on the bar');
+doc.querySelector('.gc-chip[data-value="100"]').click();doc=dom.window.document;
+assert(doc.querySelector('.gc-heading')&&doc.querySelector('.gc-heading').textContent==='Completed','A goal at 100 percent must move to Completed');dom.window.close();
+dom=open('life-planner/goal-tracker.html',{lp_goals:[{...goal,milestones:'Finish design, Test checkout',milestoneChecks:{0:true}}]});doc=dom.window.document;
+const migrated=JSON.parse(dom.window.localStorage.getItem('lp_goals'))[0];
+assert(migrated.progress==='50'&&migrated.milestones==='','Goals that had steps must keep their percentage and drop the steps');dom.window.close();
 
 const monthly={id:'month-end',title:'Month-end review',frequency:'Monthly',interval:'1',start:'2024-01-31',end:''};
 dom=open('life-planner/smart-calendar.html',{lp_tasks_recurring_rules:[monthly],lp_tasks_recurring_instances:[],lp_habits:[{id:'daily-habit',name:'Development',frequency:'Daily',checks:{}}]});doc=dom.window.document;
@@ -106,4 +132,4 @@ assert(doc.querySelectorAll('.month-cell').length===42,'Month view must render a
 const leapDay=[...doc.querySelectorAll('.month-cell')].find(x=>x.querySelector('time')?.getAttribute('datetime')==='2024-02-29');
 assert(leapDay?.textContent.includes('Month-end review'),'Monthly rule on the 31st must anchor to leap-year February 29');dom.window.close();
 
-console.log('Planner feature test passed: calculators, recurring finance, guided meals and groceries, milestone goal math, shared editing, calendar quick-add, recurring rules, year view, and leap-year dates.');
+console.log('Planner feature test passed: calculators, recurring finance, guided meals and groceries, goal percentages, shared editing, calendar quick-add, recurring rules, year view, and leap-year dates.');

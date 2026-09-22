@@ -854,3 +854,37 @@ body[data-module="fitness"] .workspace{overflow-x:hidden}
 @media(max-width:720px){
   .ft-form>.fx-field:not(.ft-name-field):not(.ft-date-field){grid-column:span 1}
 }
+
+/* Goals without steps: drag to set progress */
+.gc-slider{display:grid;gap:6px}
+.goal-percent{width:100%;height:28px;margin:0;background:transparent;accent-color:var(--accent);cursor:pointer}
+.gc-slider-note{color:var(--text-3);font-size:12.5px}
+
+/* Goals: percentage buttons; dashboard money strip */
+.gc-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.gc-chip{min-height:36px;padding:0 14px;border:1px solid var(--border-hi);border-radius:99px;background:transparent;color:var(--text-2);font:600 13px var(--font-body);cursor:pointer;transition:border-color .2s,background .2s,color .2s}
+.gc-chip:hover{border-color:rgba(217,179,108,.6);color:var(--accent)}
+.gc-chip.active{border-color:var(--accent);background:rgba(217,179,108,.15);color:var(--accent)}
+.goal-custom-form{display:flex;gap:6px;margin-left:auto}
+.goal-custom-form input{width:104px;min-height:36px;padding:0 10px;border:1px solid var(--border-hi);border-radius:10px;outline:none;background:var(--surface-2);color:var(--text);font:400 13.5px var(--font-body)}
+.goal-custom-form input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,179,108,.16)}
+.dash-money{margin-bottom:22px}
+.dash-money .fx-link{margin-left:0;padding:0}
+@media(max-width:720px){.goal-custom-form{margin-left:0;width:100%}.goal-custom-form input{flex:1;width:auto}}
+
+/* Dashboard checklist for today; one meal per slot */
+.dt-count{margin-left:8px;padding:2px 9px;border-radius:99px;background:rgba(255,255,255,.07);color:var(--text-2);font-family:var(--font-body);font-size:12px;font-weight:600;vertical-align:middle}
+.dt-list{margin:0;padding:0;list-style:none}
+.dt-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--border)}
+.dt-row:first-child{border-top:0}
+.dt-check{display:flex;align-items:center;flex:1;gap:12px;min-width:0;cursor:pointer}
+.dt-check .check{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
+.dt-main{display:grid;gap:2px;min-width:0}
+.dt-main b{overflow-wrap:anywhere;color:var(--text);font-size:15px;font-weight:500}
+.dt-main small{color:var(--text-2);font-size:12.5px}
+.dt-row.is-done .dt-main b{color:var(--text-3);text-decoration:line-through}
+.dt-info{padding-left:32px}
+.dt-checkline{display:flex;align-items:center;gap:10px;color:var(--text);font-size:14px;cursor:pointer}
+.dt-checkline input{flex:none;width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.ml-chip.is-eaten{border-color:rgba(217,179,108,.7);background:rgba(217,179,108,.2)}
+body[data-module="dashboard"] .modal-card .section-kicker{display:none}

@@ -12,9 +12,13 @@ dom.window.close();
 
 const fresh=openApp('my-routines/habit-tracker.html',{lp_settings:{theme:'light'}}),freshDoc=fresh.window.document,form=freshDoc.querySelector('#habit-bulk-form');
 if(freshDoc.documentElement.dataset.theme!=='dark'||freshDoc.querySelector('#theme-btn'))throw new Error('App must be dark-only with no theme switch');
-if(freshDoc.querySelectorAll('.start-choice').length!==7)throw new Error('Opening workspace chooser is missing sections');
+if(freshDoc.querySelectorAll('.start-choice').length!==6)throw new Error('Opening workspace chooser is missing sections');
 if(form.elements.names.tagName!=='INPUT')throw new Error('Habit entry must accept one habit at a time');form.elements.names.value='Drink water';form.dispatchEvent(new fresh.window.Event('submit',{bubbles:true,cancelable:true}));
 let saved=JSON.parse(fresh.window.localStorage.getItem('lp_habits'));if(saved.length!==1||saved[0].name!=='Drink water')throw new Error('Single habit entry did not save exactly one habit');
 const todayBox=freshDoc.querySelector('.habit-toggle');todayBox.checked=true;todayBox.dispatchEvent(new fresh.window.Event('change',{bubbles:true}));saved=JSON.parse(fresh.window.localStorage.getItem('lp_habits'));
 if(!saved.some(x=>x.checks[iso(new Date())]))throw new Error('Daily habit checklist did not save the selected date');
+const quiet=openApp('my-routines/habit-tracker.html',{lp_start_seen_at:Date.now()-3600000});if(quiet.window.document.querySelector('.start-picker'))throw new Error('The workspace chooser must stay hidden for 24 hours after it was shown');
+const due=openApp('my-routines/habit-tracker.html',{lp_start_seen_at:Date.now()-90000000});if(!due.window.document.querySelector('.start-picker'))throw new Error('The workspace chooser must return after 24 hours');
+const sidebar=[...fresh.window.document.querySelectorAll('.modules a')].map(a=>a.textContent.trim()).join('|');if(sidebar.includes('My Routines'))throw new Error('My Routines was merged into Task Tracker and must leave the sidebar');
+const taskTabs=[...openApp('my-routines/habit-tracker.html',{lp_habits:[habit]}).window.document.querySelectorAll('.tabs a')].map(a=>a.textContent.trim()).join(',');if(!taskTabs.includes('Habit Tracker')||!taskTabs.includes('Daily Journal'))throw new Error('Habit Tracker and Daily Journal must be tabs inside Task Tracker');
 fresh.window.close();console.log('Habit tracker test passed: streaks, dark-only UI, opening chooser, single add, and dated check-ins.');
